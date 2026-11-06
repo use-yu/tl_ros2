@@ -1,3 +1,22 @@
+source ~/tl_robot_ros2_cpp/install/setup.bash
+ros2 launch tl_driver tl_tcb705l_driver.launch.py arm_ip:=192.168.1.14
+
+
+source ~/tl_robot_ros2_cpp/install/setup.bash
+ros2 launch tl_tcb705l_config real_hardware_demo.launch.py
+
+调试问题：
+启动moveit会复位，以修复
+
+参数180 1800 3000 速度18度/s,有3度左右误差，延迟0.18s
+参数180 1800 3000 速度30度/s,有5度左右误差，延迟0.17s
+参数180 1800 3000 速度30度/s,有7度左右误差，延迟0.22s
+
+
+参数300 3000 60000 速度18度/s,有2.2度左右误差，延迟0.122s
+
+参数300 3000 60000 速度36度/s,有4.4度左右误差，延迟0.122s
+
 # 天链机器人 ROS2 机械臂工作空间
 
 TL 系列机械臂 ROS2 接口与功能包集 — 四川天链机器人股份有限公司
@@ -99,6 +118,20 @@ ros2 launch tl_<arm_type>_config demo.launch.py
 ```
 
 替换 `<arm_type>` 为对应型号名称。
+
+### 关节与末端跟踪误差监测
+
+启动 MoveIt 控制器后，在另一个终端运行只读监测脚本（默认 TCB705L）：
+
+```bash
+source ~/tl_robot_ros2_cpp/install/setup.bash
+cd ~/tl_robot_ros2_cpp
+python3 scripts/tracking_monitor.py --plot
+```
+
+显示关节目标/反馈角度、关节误差与基于关节反馈正运动学计算的末端误差，
+保存 CSV 和整段曲线 PNG（含 RMSE/最大误差统计表）；它不代表外部测量的末端绝对精度。
+参数、无界面记录和测量限制见 [监测脚本说明](scripts/TRACKING_MONITOR.md)。
 
 ### Gazebo 仿真
 

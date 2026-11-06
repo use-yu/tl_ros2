@@ -1,0 +1,58 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "linux-native",
+            "displayName": "Linux 本机编译",
+            "description": "Linux 本机编译，自动检测架构",
+            "binaryDir": "${sourceDir}/build/linux-native",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "17",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-arm64",
+            "displayName": "Linux ARM64",
+            "description": "Linux ARM64 交叉编译",
+            "binaryDir": "${sourceDir}/build/linux-arm64",
+            "toolchainFile": "${sourceDir}/cmake/toolchain-aarch64-linux.cmake",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "17",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "windows-x86",
+            "displayName": "Windows x86_64",
+            "description": "Windows x86_64 编译（Visual Studio 18 2026）",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/build/windows-x86",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "17"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "linux-native",
+            "configurePreset": "linux-native",
+            "jobs": 0
+        },
+        {
+            "name": "linux-arm64",
+            "configurePreset": "linux-arm64",
+            "jobs": 0
+        },
+        {
+            "name": "windows-x86",
+            "configurePreset": "windows-x86",
+            "configuration": "Release",
+            "jobs": 0
+        }
+    ]
+}

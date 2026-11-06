@@ -12,6 +12,9 @@
                     <param name="open_servoj_service">/tl_driver/open_servoj</param>
                     <param name="close_servoj_service">/tl_driver/close_servoj</param>
                     <param name="state_timeout_sec">1.0</param>
+                    <param name="servoj_vmax">300.0</param>
+                    <param name="servoj_amax">3000.0</param>
+                    <param name="servoj_jmax">60000.0</param>
                 </xacro:if>
                 <xacro:unless value="${use_real_hardware}">
                     <plugin>mock_components/GenericSystem</plugin>

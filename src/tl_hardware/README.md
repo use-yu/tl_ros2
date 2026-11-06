@@ -50,7 +50,7 @@ TLHardwareInterface
 1. 调用 `/tl_driver/open_servoj` 服务，传入 `vmax`/`amax`/`jmax` 参数
 2. 等待首帧 `/joint_states` 消息（超时 5 秒）
 3. 将接收到的关节位置/力矩数据写入状态接口，初始化速度计算状态
-4. 标记 `hardware_active_ = true`
+4. 将当前关节位置同步到位置指令接口，再标记 `hardware_active_ = true`；控制器下发新目标前保持当前位置，避免启动时发送全零目标。停用后再次激活时同样重新同步，避免沿用上次目标
 
 ### `read()`
 

@@ -21,6 +21,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/int32.hpp>
 
 // msg
 #include "tl_ros2_interface/msg/arm_status.hpp"
@@ -422,6 +423,8 @@ private:
   rclcpp::Service<tl_ros2_interface::srv::GetCurrentLineJointSpeed>::SharedPtr get_current_line_joint_speed_service_;
 
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_deg_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr servoj_result_pub_;
   rclcpp::Publisher<tl_ros2_interface::msg::CartesianPose>::SharedPtr tcp_pose_pub_;
   rclcpp::Publisher<tl_ros2_interface::msg::ArmStatus>::SharedPtr running_status_pub_;
 

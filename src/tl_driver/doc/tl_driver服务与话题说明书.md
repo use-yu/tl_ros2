@@ -259,13 +259,29 @@ ros2 service call /tl_driver/log_download tl_ros2_interface/srv/LogDownload "{co
 | 参数名 | 类型 | 单位 | 说明 |
 |--------|------|------|------|
 | position | float64[] | rad | 各关节角度（ROS标准单位），数组长度 = 关节数 |
-| velocity | float64[] | rad/s | 各关节角速度 |
-| effort | float64[] | Nm | 各关节力矩 |
+| velocity | float64[] | rad/s | 当前驱动未填充，数组为空 |
+| effort | float64[] | Nm | 当前驱动未填充，数组为空 |
 | name | string[] | — | 各关节名称 |
 #### 命令示例
 ```
 ros2 topic echo /joint_states
 ```
+
+#### 角度状态（诊断话题）
+
+`/joint_states_deg` 使用 `sensor_msgs/msg/JointState`，每次驱动发布 `/joint_states` 后同步发布。
+两条消息来自同一次查询，`header.stamp`、`name` 和关节顺序相同；六轴发布六个位置，七轴发布七个位置。
+`position` 按 `rad × 180 / π` 转为 **度（°）**；`velocity`、`effort` 均为空。
+定时器设定为 100 Hz，实际频率受 SDK 查询和调度影响；查询失败时两条关节状态消息均不发布。
+
+此话题是非标准角度单位的诊断输出，不要重映射为 `/joint_states` 或直接用于 MoveIt、robot_state_publisher。
+原 `/joint_states` 保持标准弧度单位。
+
+```bash
+ros2 topic echo /joint_states_deg
+ros2 topic hz /joint_states_deg
+```
+
 ### 4.2 查询末端位姿
 | 功能描述 | 实时获取机械臂末端（TCP）在直角坐标系下的位置和姿态（话题持续发布） |
 | :---: | :---- |
@@ -1963,6 +1979,25 @@ ros2 topic pub /tl_driver/set_servoj_pos std_msgs/msg/Float64MultiArray \
     data: [0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0]
 }"
 ```
+#### 关节透传调用完成监测
+
+驱动发布 `/tl_driver/servoj_result`，类型为 `std_msgs/msg/Int32`。
+处理 `/tl_driver/set_servoj_pos` 时，每次 `set_servoJ_pos()` 返回后发布一次，
+成功和失败都发布；未连接而提前返回时不发布。此监测不包含笛卡尔透传或其他路径中的 SDK 调用。
+
+`data` 是 SDK 返回码：`0` 成功，`-1` 接收失败，`-2` 连接断开，`-3` 参数错误，
+`-4` 操作不允许，`-5` 异常，`-6` 超时。
+
+```bash
+# 查看调用完成事件的接收频率
+ros2 topic hz /tl_driver/servoj_result
+# 查看返回码
+ros2 topic echo /tl_driver/servoj_result
+```
+
+该频率反映 SDK 调用返回事件在订阅端的到达频率，不是电机执行频率或到位确认。
+SDK 阻塞期间不会发布此事件；ROS 通信延迟和订阅端负载可能影响测量值。
+
 ### 15.4 发送跟踪笛卡尔位姿
 | 功能描述 | 笛卡尔空间直线伺服运动：在当前位姿与目标位姿之间插入多个中间点，通过 IK 转为关节角后经 servoj 通道高频发送，实现笛卡尔直线轨迹的实时伺服控制（单向话题，无返回值） |
 | :---: | :---- |

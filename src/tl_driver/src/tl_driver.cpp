@@ -423,6 +423,8 @@ TL_Arm::TL_Arm() : rclcpp::Node("tl_driver")
 
   // 话题pub
   joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
+  joint_states_deg_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states_deg", 10);
+  servoj_result_pub_ = this->create_publisher<std_msgs::msg::Int32>("/tl_driver/servoj_result", 10);
 
   tcp_pose_pub_ = this->create_publisher<tl_ros2_interface::msg::CartesianPose>("/tcp_pose", 10);
 
@@ -2486,6 +2488,10 @@ void TL_Arm::handle_set_servoj_pos_topic(const std_msgs::msg::Float64MultiArray:
 
   std::vector<double> pos = msg->data;
   Result ret = set_servoJ_pos(socket_fd_aux_, pos);
+  // Report each completed SDK call, including failures; this is not a motion-complete acknowledgement.
+  std_msgs::msg::Int32 result_msg;
+  result_msg.data = static_cast<int32_t>(ret);
+  servoj_result_pub_->publish(result_msg);
   RCLCPP_INFO(this->get_logger(), "[ServoJ]: result=%s", result_to_string(ret));
 }
 
@@ -2725,6 +2731,14 @@ void TL_Arm::publish_joint_pose(const std::vector<double>& joint_pose)
   }
 
   joint_state_pub_->publish(msg);
+
+  // Diagnostic topic only: preserve the sample timestamp and names, but report positions in degrees.
+  auto deg_msg = msg;
+  for (auto& position : deg_msg.position)
+  {
+    position *= 180.0 / M_PI;
+  }
+  joint_states_deg_pub_->publish(deg_msg);
 }
 
 void TL_Arm::publish_tcp_pose(const std::vector<double>& tcp_pose)

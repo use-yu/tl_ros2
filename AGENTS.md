@@ -14,6 +14,10 @@ source install/setup.bash
 
 构建产物在 `build/`、`install/`、`log/` — 均已 gitignore。
 
+只读跟踪监测工具不参与 colcon 构建：启动 MoveIt 控制器后运行
+`python3 scripts/tracking_monitor.py --plot`（默认 TCB705L），
+使用方式与 FK 误差的测量限制见 `scripts/TRACKING_MONITOR.md`。
+
 ## 功能包依赖关系
 
 ```
@@ -117,11 +121,13 @@ scripts/           （工作空间测量等工具脚本，不参与 colcon 构�
 | 话题 | 发布者 | 订阅者 | 类型 |
 |------|--------|--------|------|
 | `/joint_states` | tl_driver（真实）/ joint_state_publisher_gui（仿真） | tl_description | `sensor_msgs/JointState` |
+| `/joint_states_deg` | tl_driver | 角度监测工具（position 单位 °，仅用于诊断） | `sensor_msgs/JointState` |
 | `/tcp_pose` | tl_driver | — | `tl_ros2_interface/CartesianPose` |
 | `/arm_status` | tl_driver | — | `tl_ros2_interface/ArmStatus` |
 | `/tl_driver/moveJ` | — | tl_driver | `tl_ros2_interface/MoveCommand` |
 | `/tl_driver/moveL` | — | tl_driver | `tl_ros2_interface/MoveCommand` |
 | `/tl_driver/set_servoj_pos` | — | tl_driver | `std_msgs/Float64MultiArray` |
+| `/tl_driver/servoj_result` | tl_driver | 频率/结果监测工具 | `std_msgs/Int32` |
 | `/tl_driver/set_servol_pos` | tl_teleop_f710（仿真模式） | tl_driver | `tl_ros2_interface/ServolMove` |
 
 | `/tf`、`/tf_static` | tl_description（robot_state_publisher） | — | `tf2_msgs/TFMessage` |

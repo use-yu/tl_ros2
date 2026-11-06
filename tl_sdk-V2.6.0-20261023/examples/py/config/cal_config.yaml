@@ -1,0 +1,51 @@
+# ============================================================
+# 眼在手（Eye-in-Hand）手眼标定配置文件
+# ============================================================
+
+robot:
+  ip: "192.168.1.13"
+  port: "6001"
+  # 位姿坐标系: 1=基坐标系（直角坐标系） 2=工具坐标系
+  coord_system: 1
+  # 旋转顺序: R = Rx(roll) · Ry(pitch) · Rz(yaw) (外旋 XYZ)
+  rotation_order: "XYZ"
+
+camera:
+  width: 640
+  height: 480
+  fps: 30
+
+calibration_board:
+  # 标定板类型: checkerboard / aruco / charuco
+  type: "checkerboard"
+  # 棋盘格内角点数 (宽, 高) — 物理格子 12×9 → 内角点 11×8
+  pattern_size: [11, 8]
+  # 每个棋盘格方格的边长，单位 mm
+  square_size_mm: 20.0
+
+calibration:
+  # 最少采集图像数量（建议 ≥12，覆盖不同位置和姿态）
+  min_images: 18
+  # 最大采集数量
+  max_images: 50
+  # 输出目录（相对脚本所在路径）
+  output_dir: "cal_data"
+
+# ============================================================
+# 手眼标定验证（ex_handeye_verify.py）配置
+# ============================================================
+verify:
+  # ★★★ 验证目标点偏移量（重要，需要调整验证位置时改这里）★★★
+  # 目标点 = 棋盘格中心沿标定板平面法线方向（向外）偏移 offset_along_normal_mm 毫米
+  # 程序启动与按 S 解算时都会打印当前偏移量，便于确认
+  offset_along_normal_mm: -50.0
+  # 标定结果文件（相对脚本所在路径），由 ex_handeye_calibration.py 生成
+  result_path: "cal_data/result.yaml"
+  # 直线运动参数（robot_movel，基坐标系）
+  move_velocity: 50        # 速度 mm/s，范围 (1, 1000]
+  move_acc: 30             # 加速度
+  move_dec: 30             # 减速度
+  # 返回零位关节角（度）—— 六轴填 6 个，七轴填 7 个
+  home_joints: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  # 等待运动到位的超时时间（秒）
+  motion_timeout_s: 30

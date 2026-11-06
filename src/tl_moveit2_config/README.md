@@ -94,6 +94,8 @@ ros2 launch tl_tcb710_config real_hardware_demo.launch.py
 
 #### 2.2.2 注意事项
 
+- TCB705L 真实硬件配置在 `tl_tcb705l_config/config/tl_tcb705l.ros2_control.xacro` 中将 ServoJ 约束设置为每关节 `servoj_vmax=90.0 °/s`、`servoj_amax=300.0 °/s²`、`servoj_jmax=1500.0 °/s³`，为硬件插件默认值的三倍。参数在硬件激活、开启 ServoJ 时下发，重新构建后需重启真实硬件 MoveIt 启动程序才能生效；这些约束不改变 MoveIt 规划缩放或 100 Hz 控制周期，也不表示轨迹执行速度自动变为三倍。
+- TCB705L 的 `tl_tcb705l_config/config/joint_limits.yaml` 已开启全部七个关节的速度、加速度限制：上限分别为 `3.14 rad/s`、`6.28 rad/s²`，默认缩放均为 `0.1`。规划请求使用该缩放时，对应约 `18°/s`、`36°/s²`；这是规划上限，不是恒定运动速度。RViz 中修改缩放会改变规划约束，实机使用时还需与 ServoJ 约束匹配。修改配置并重新构建后，需重启 MoveIt 并重新规划，已有轨迹不会自动更新。
 - 确保 `tl_driver` 启动后成功连接机械臂（终端输出显示 `Connected` 状态）。
 - MoveIt2 真实硬件控制默认关闭仿真时间（`use_sim_time:=false`），使用系统时钟。
 - `real_hardware_demo.launch.py` 内部调用 `xacro` 时传入 `use_real_hardware:=true` 参数，从而加载 `tl_hardware/TLHardwareInterface` 插件，而非虚拟模式下的 `mock_components/GenericSystem`。

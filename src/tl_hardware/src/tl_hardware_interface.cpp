@@ -282,6 +282,10 @@ hardware_interface::CallbackReturn TLHardwareInterface::on_activate(const rclcpp
     joint_velocities_.assign(joint_names_.size(), 0.0);
     joint_efforts_ = received_efforts_;
 
+    // Hold the current pose until a controller supplies a new command, including
+    // after reactivation. Preserve the storage exported by command interfaces.
+    std::copy(received_positions_.begin(), received_positions_.end(), joint_position_commands_.begin());
+
     last_positions_ = received_positions_;
     last_read_time_ = node_->now();
   }
